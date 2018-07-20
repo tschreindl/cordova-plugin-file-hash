@@ -35,4 +35,11 @@
         <header-file src="src/ios/CDVFileHash.h" />
         <source-file src="src/ios/CDVFileHash.m" />
     </platform>
+    
+    <!-- windows -->
+    <platform name="windows">
+        <js-module src="src/windows/FileHashProxy.js" name="FileHashProxy">
+            <merges target="" />
+        </js-module>
+    </platform>
 </plugin>
