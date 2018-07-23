@@ -194,7 +194,7 @@ function makeHash(win, fail, url, algo, hashObj) {
 module.exports = {
     
     md2: function (win, fail, args){
-        fail();
+        fail({code: 5, message: "Algorithm not implemented."});
     },
     
     md5: function (win, fail, args){

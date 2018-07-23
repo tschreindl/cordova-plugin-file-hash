@@ -33,6 +33,7 @@ the errorCallback function receives a JSON object, here is the structure of the 
 |2|File not found|on IOS was also send in case of access error|
 |3|File access error|no sufficents access rights or already used file|
 |4|Digest error|cryptography processing error|
+|5|Not implemented error|Algorithm not implemented|
 
 ###***Example on Android***
 ![warning](https://cdn1.iconfinder.com/data/icons/nuove/32x32/actions/messagebox_warning.png) this example uses [cordova-plugin-file](https://www.npmjs.com/package/cordova-plugin-file) to retrieve the appfolder(cordova.file.applicationDirectory)
