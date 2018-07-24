@@ -24,7 +24,8 @@ var WinFS = function (name, root) {
     }
     root.fullPath = '/';
     if (!root.nativeURL) { root.nativeURL = 'file://' + sanitize(this.winpath + root.fullPath).replace(':', '%3A'); }
-    WinFS.__super__.constructor.call(this, name, root);
+    this.name = name;
+    this.root = root;
 };
 
 var AllFileSystems;
