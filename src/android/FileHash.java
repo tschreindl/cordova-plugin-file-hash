@@ -60,8 +60,8 @@ public class FileHash extends CordovaPlugin {
     }
     if (url.contains("file:///android_asset/")) {
       // LordKBX version copied file, we should omit it with error
-      r.put("code", 5);
-      r.put("message", "Unsupported url");
+      r.put("code", 3);
+      r.put("message", "File access error");
       callbackContext.error(r);
       return true;
     }
