@@ -39,77 +39,99 @@ import org.json.JSONObject;
  *
  * @author LordKBX, vgavro
  */
-public class FileHash extends CordovaPlugin {
-  public boolean execute(String action, JSONArray args,
-                         CallbackContext callbackContext) throws JSONException {
-    String url = args.getString(0);
-    url = URLDecoder.decode(url);
-    JSONObject r = new JSONObject();
-    String ealgo = "";
-    if (action.equals("md2")) ealgo = "MD2";
-    else if (action.equals("md5")) ealgo = "MD5";
-    else if (action.equals("sha1")) ealgo = "SHA-1";
-    else if (action.equals("sha256")) ealgo = "SHA-256";
-    else if (action.equals("sha384")) ealgo = "SHA-384";
-    else if (action.equals("sha512")) ealgo = "SHA-512";
-    else {
-      r.put("code", 1);
-      r.put("message", "Unknown Algorithm");
-      callbackContext.error(r);
-      return true;
-    }
-    if (url.contains("file:///android_asset/")) {
-      // LordKBX version copied file, we should omit it with error
-      r.put("code", 3);
-      r.put("message", "File access error");
-      callbackContext.error(r);
-      return true;
-    }
-    url = url.replace("file:///", "/").replace("file:", "");
-
-    String finalEalgo = ealgo;
-    String finalUrl = url;
-    cordova.getThreadPool().execute(new Runnable() {
-      public void run() {
-        FileInputStream fis;
+public class FileHash extends CordovaPlugin
+{
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException
+    {
+        String url = args.getString(0);
+        url = URLDecoder.decode(url);
         JSONObject r = new JSONObject();
-        try {
-          fis = new FileInputStream(finalUrl);
-          MessageDigest md = MessageDigest.getInstance(finalEalgo);
-          byte[] dataBytes = new byte[1024];
-          int nread = 0;
-          while ((nread = fis.read(dataBytes)) != -1) {
-            md.update(dataBytes, 0, nread);
-          };
-          byte[] mdbytes = md.digest();
-          // convert the byte to hex format method 1
-          StringBuffer sb = new StringBuffer();
-          for (int i = 0; i < mdbytes.length; i++) {
-            sb.append(
-                Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-          }
-          r.put("file", finalUrl);
-          r.put("algo", finalEalgo);
-          r.put("result", sb.toString());
-          callbackContext.success(r);
-        } catch (Exception ex) {
-          if (ex instanceof FileNotFoundException) {
-            File f = new File(finalUrl);
-            if (f.exists()) {
-              r.put("code", 3);
-              r.put("message", "File access error");
-            } else {
-              r.put("code", 2);
-              r.put("message", "File not found");
+        String ealgo;
+        switch (action)
+        {
+            case "md2" -> ealgo = "MD2";
+            case "md5" -> ealgo = "MD5";
+            case "sha1" -> ealgo = "SHA-1";
+            case "sha256" -> ealgo = "SHA-256";
+            case "sha384" -> ealgo = "SHA-384";
+            case "sha512" -> ealgo = "SHA-512";
+            default -> {
+                r.put("code", 1);
+                r.put("message", "Unknown Algorithm");
+                callbackContext.error(r);
+                return true;
             }
-          } else {
-            r.put("code", 4);
-            r.put("message", "Digest error");
-          }
-          callbackContext.error(r);
         }
-      }
-    });
-    return true;
-  }
+        if (url.contains("file:///android_asset/"))
+        {
+            // LordKBX version copied file, we should omit it with error
+            r.put("code", 3);
+            r.put("message", "File access error");
+            callbackContext.error(r);
+            return true;
+        }
+        url = url.replace("file:///", "/").replace("file:", "");
+
+        String finalEalgo = ealgo;
+        String finalUrl = url;
+        cordova.getThreadPool().execute((Runnable) () ->
+        {
+            FileInputStream fis;
+            JSONObject r1 = new JSONObject();
+            try
+            {
+                fis = new FileInputStream(finalUrl);
+                MessageDigest md = MessageDigest.getInstance(finalEalgo);
+                byte[] dataBytes = new byte[1024];
+                int nread;
+                while ((nread = fis.read(dataBytes)) != -1)
+                {
+                    md.update(dataBytes, 0, nread);
+                }
+
+                byte[] mdbytes = md.digest();
+                // convert the byte to hex format method 1
+                StringBuffer sb = new StringBuffer();
+                for (byte mdbyte : mdbytes)
+                {
+                    sb.append(Integer.toString((mdbyte & 0xff) + 0x100, 16).substring(1));
+                }
+                r1.put("file", finalUrl);
+                r1.put("algo", finalEalgo);
+                r1.put("result", sb.toString());
+                callbackContext.success(r1);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (ex instanceof FileNotFoundException)
+                    {
+                        File f = new File(finalUrl);
+                        if (f.exists())
+                        {
+                            r1.put("code", 3);
+                            r1.put("message", "File access error");
+                        }
+                        else
+                        {
+                            r1.put("code", 2);
+                            r1.put("message", "File not found");
+                        }
+                    }
+                    else
+                    {
+                        r1.put("code", 4);
+                        r1.put("message", "Digest error");
+                    }
+                    callbackContext.error(r1);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return true;
+    }
 }
