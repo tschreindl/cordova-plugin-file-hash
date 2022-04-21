@@ -67,13 +67,15 @@ public class FileHash extends CordovaPlugin {
     }
     url = url.replace("file:///", "/").replace("file:", "");
 
+    String finalEalgo = ealgo;
+    String finalUrl = url;
     cordova.getThreadPool().execute(new Runnable() {
       public void run() {
         FileInputStream fis;
         JSONObject r = new JSONObject();
         try {
-          fis = new FileInputStream(url);
-          MessageDigest md = MessageDigest.getInstance(algo);
+          fis = new FileInputStream(finalUrl);
+          MessageDigest md = MessageDigest.getInstance(finalEalgo);
           byte[] dataBytes = new byte[1024];
           int nread = 0;
           while ((nread = fis.read(dataBytes)) != -1) {
@@ -86,13 +88,13 @@ public class FileHash extends CordovaPlugin {
             sb.append(
                 Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
           }
-          r.put("file", url);
-          r.put("algo", ealgo);
+          r.put("file", finalUrl);
+          r.put("algo", finalEalgo);
           r.put("result", sb.toString());
           callbackContext.success(r);
         } catch (Exception ex) {
           if (ex instanceof FileNotFoundException) {
-            File f = new File(url);
+            File f = new File(finalUrl);
             if (f.exists()) {
               r.put("code", 3);
               r.put("message", "File access error");
