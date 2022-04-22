@@ -49,18 +49,29 @@ public class FileHash extends CordovaPlugin
         String ealgo;
         switch (action)
         {
-            case "md2" -> ealgo = "MD2";
-            case "md5" -> ealgo = "MD5";
-            case "sha1" -> ealgo = "SHA-1";
-            case "sha256" -> ealgo = "SHA-256";
-            case "sha384" -> ealgo = "SHA-384";
-            case "sha512" -> ealgo = "SHA-512";
-            default -> {
+            case "md2":
+                ealgo = "MD2";
+                break;
+            case "md5":
+                ealgo = "MD5";
+                break;
+            case "sha1":
+                ealgo = "SHA-1";
+                break;
+            case "sha256":
+                ealgo = "SHA-256";
+                break;
+            case "sha384":
+                ealgo = "SHA-384";
+                break;
+            case "sha512":
+                ealgo = "SHA-512";
+                break;
+            default:
                 r.put("code", 1);
                 r.put("message", "Unknown Algorithm");
                 callbackContext.error(r);
                 return true;
-            }
         }
         if (url.contains("file:///android_asset/"))
         {
